@@ -20,17 +20,20 @@ class Generator(nn.Module):
     '''
     def __init__(self, input_channels, output_channels, hidden_channels=32):
         super(Generator, self).__init__()
-        self.upfeature = bk.FeatureMapBlock(input_channels, hidden_channels*2)
-        self.upfeature2 = bk.FeatureMapBlock(hidden_channels*2, hidden_channels)
+        self.upfeature = bk.FeatureMapBlock(input_channels, hidden_channels)
         self.contract1 = bk.ContractingBlock(hidden_channels)
         self.contract2 = bk.ContractingBlock(hidden_channels * 2)
-        self.contract3 = bk.ContractingBlock(hidden_channels * 4)
-        res_mult = 8
+        res_mult = 4
+        self.res0 = bk.ResidualBlock(hidden_channels * res_mult)
+        self.res1 = bk.ResidualBlock(hidden_channels * res_mult)
+        self.res2 = bk.ResidualBlock(hidden_channels * res_mult)
+        self.res3 = bk.ResidualBlock(hidden_channels * res_mult)
+        self.res4 = bk.ResidualBlock(hidden_channels * res_mult)
+        self.res5 = bk.ResidualBlock(hidden_channels * res_mult)
+        self.res6 = bk.ResidualBlock(hidden_channels * res_mult)
+        self.res7 = bk.ResidualBlock(hidden_channels * res_mult)
+        self.res8 = bk.ResidualBlock(hidden_channels * res_mult)
 
-        self.resBlocks = bk.ResidualBlockss(hidden_channels, res_mult)
-        self.resBlocks2 = bk.ResidualBlockss(hidden_channels, res_mult)
-
-        self.expand1 = bk.ExpandingBlock(hidden_channels * 8)
         self.expand2 = bk.ExpandingBlock(hidden_channels * 4)
         self.expand3 = bk.ExpandingBlock(hidden_channels * 2)
         self.downfeature = bk.FeatureMapBlock(hidden_channels, output_channels)
@@ -44,14 +47,18 @@ class Generator(nn.Module):
         Parameters:
             x: image tensor of shape (batch size, channels, height, width)
         '''
-        x00 = self.upfeature(x)
-        x0 = self.upfeature2(x00)
+        x0 = self.upfeature(x)
         x1 = self.contract1(x0)
         x2 = self.contract2(x1)
-        x3 = self.contract3(x2)
-        x3 = self.resBlocks(x3)
-        x11 = self.resBlocks2(x3)
-        x11 = self.expand1(x11)
+        x3 = self.res0(x2)
+        x4 = self.res1(x3)
+        x5 = self.res2(x4)
+        x6 = self.res3(x5)
+        x7 = self.res4(x6)
+        x8 = self.res5(x7)
+        x9 = self.res6(x8)
+        x10 = self.res7(x9)
+        x11 = self.res8(x10)
         x12 = self.expand2(x11)
         x13 = self.expand3(x12)
         xn = self.downfeature(x13)

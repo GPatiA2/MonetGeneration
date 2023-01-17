@@ -3,9 +3,9 @@ import sys, os
 import torch
 
 import Training
-from StyleGAN import StyleDiscriminator
-from StyleGAN.Components import make_dataset, make_logger
-from StyleGAN.StyleGenerator import Generator
+from StyleGANUPM import StyleDiscriminator
+from StyleGANUPM.Components import make_dataset, make_logger
+from StyleGANUPM.StyleGenerator import Generator
 
 curentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(curentdir)
@@ -14,7 +14,7 @@ sys.path.append(parentdir)
 
 
 output_dir = curentdir + "\\Models\\"
-img_dir="C:/Users/Daniela/Documents/TFG/fruits-360_dataset/fruits-360\Training"
+img_dir="C:/Users/Daniela/Documents/Datasets/monet_jpg"
 logger = make_logger("project", output_dir, 'log')
 
 def load(model, cpk_file):
@@ -26,34 +26,36 @@ def load(model, cpk_file):
 
 if __name__ == '__main__':
 
-    loadingPrev = False
-    generator_FILE ="GAN_GEN_0_1.pth"
-    discriminator_FILE = "GAN_DIS_0_1.pth"
-    generatorOptim_FILE = "GAN_GEN_OPTIM_0_1.pth"
-    discriminatorOptim_FILE = "GAN_DIS_OPTIM_0_1.pth"
-    genShadow = "GAN_GEN_SHADOW_0_1.pth"
+    loadingPrev = True
+    generator_FILE = "GAN_GEN_5_40.pth"
+    discriminator_FILE = "GAN_DIS_5_40.pth"
+    generatorOptim_FILE = "GAN_GEN_OPTIM_5_40.pth"
+    discriminatorOptim_FILE = "GAN_DIS_OPTIM_5_40.pth"
+    genShadow = "GAN_GEN_SHADOW_5_40.pth"
+    initialDepth = 5
 
-    initialDepth=0
+    # Dataset
+    dataset = make_dataset(resolution=256,
+                            ##La resolucion la cargamos como si fuesen imagenes 128x128 para evitar problemas
+                            folder=False,
+                            img_dir=img_dir,
+                            conditional=False)
 
-    dataset = make_dataset(resolution=128, ##La resolucion la cargamos como si fuesen imagenes 128x128 para evitar problemas
-                           folder=True,
-                           img_dir=img_dir,
-                           conditional=False)
 
 
-    epochs = [4, 4, 4, 4, 8, 16, 32, 64, 64]
+    epochs = [1, 1, 1, 1, 100, 100, 50*12, 64*12, 64*12]
 
-    batch_sizes = [8, 8, 8, 8, 8, 4, 2, 1, 1]
+    batch_sizes = [64, 32, 16, 4, 4, 4, 2, 1, 1]
 
     trainer = Training.Style_Prog_Trainer(
                                         generator=Generator,
                                         discriminator=StyleDiscriminator.Discriminator,
                                         conditional=False,
-                                         n_classes=131,
-                                         resolution=128,
+                                         n_classes=2,
+                                         resolution=256,
                                          num_channels=3,
                                          latent_size=512,
-                                         loss="logistic",
+                                         loss= "logistic",
                                          drift=0.001,
                                          d_repeats=1,
                                          use_ema=True,
@@ -81,9 +83,9 @@ if __name__ == '__main__':
                     batch_sizes=batch_sizes,
                     logger=logger,
                     output=output_dir,
-                    num_samples=36,
+                    num_samples=1,
                     start_depth=initialDepth,
-                    feedback_factor=10,
+                    feedback_factor=1,
                     checkpoint_factor=10)
 
 
